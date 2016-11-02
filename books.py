@@ -400,7 +400,7 @@ def get_books(articles_info, volumes_min, volumes_max):
         volume["articles"] = map(lambda x: articles_info[x], volume["articles"])
 
         volume["description"] = \
-            "This is volume {} of a series of ebooks collecting the articles from Jimmy Maher's" \
+            "This is volume {} of a series of ebooks collecting the articles from Jimmy Maher's " \
             "Digital Antiquarian blog, an ongoing history of interactive entertainment. " \
             "This volume covers the {}. Please note that some multimedia elements -- " \
             "pictures, screenshots, movies, audio -- may display imperfectly or not at all on many e-readers." \
