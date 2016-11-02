@@ -1,0 +1,449 @@
+# TODO downsample assets
+
+import binascii
+import os
+import re
+import sys
+import shutil
+from ConfigParser import RawConfigParser as ConfigParser
+from datetime import datetime
+
+from books import get_books
+from request import init_request, request_cached_debug, dump, undump, copydump, checkpath
+
+# http://www.lfd.uci.edu/~gohlke/pythonlibs/
+from lxml import html
+from lxml.html import builder
+
+# http://www.mobileread.com/forums/showthread.php?t=96903
+from kindlestrip_v136 import main as kindlestrip
+
+config = None
+
+
+def normalize_dir():
+    script_dir = os.path.dirname(sys.argv[0])
+    if script_dir:
+        os.chdir(script_dir)
+
+
+def request_cached_patched(filepath, *openargs):
+    patched_filepath = checkpath(config["patchpath"] + "/" + filepath)
+    content = request_cached_debug(patched_filepath, *openargs)
+
+    # use patches where appropriate
+    if os.path.exists(patched_filepath):
+        with open(patched_filepath, "rb") as fin:
+            print "using patched file for", filepath
+            content = fin.read()
+    return content
+
+
+def get_articles_info(sitemap):
+    articles = dict()
+    # articles_list = list()
+
+    # filter year, month, name from url
+    urlinfo_pattern = r'^http://www.filfre.net/(....)/(..)/(.+?)/$'
+    urlinfo_re = re.compile(urlinfo_pattern)
+
+    root = html.fromstring(sitemap)
+    list_elements = root.xpath("//div[@class='entry']/*/ul/li")
+    for list_element in list_elements:
+        anchor_element = list_element.xpath("a").pop()
+        url = anchor_element.get("href")
+        title = anchor_element.text.encode("utf-8") \
+            .replace("&", "&amp;")
+
+        span_element = list_element.xpath("span").pop()
+        date = span_element.text
+
+        (year, month, name) = urlinfo_re.match(url).groups()
+
+        filename = "%s-%s-%s.html" % (year, month, name)
+
+        articles[name] = {
+            "name": name,
+            "url": url,
+            "year": year,
+            "month": month,
+            "title": title,
+            "date": date,
+            "filename": filename,
+        }
+    # articles_list.append(name)
+
+    return articles
+
+
+def transform_articles(book):
+    print "transforming", book["name"], book["title"]
+
+    # prepare directories
+    epub_dir = checkpath(config["bookpath"] + "/" + book["name"])
+    oebps_dir = checkpath(epub_dir + "/OEBPS")
+    meta_dir = checkpath(epub_dir + "/META-INF")
+    content_dir = checkpath(oebps_dir + "/content")
+    assets_dir = checkpath(oebps_dir + "/assets")
+
+    # copy static templates
+    copydump("templates/mimetype", epub_dir + "/mimetype")
+    copydump("templates/container.xml", meta_dir + "/container.xml")
+    copydump("templates/covers/" + book["cover"], assets_dir + "/cover.jpg")
+    copydump("templates/style.css", content_dir + "/style.css")
+
+    chapter_template = undump("templates/chapter.xhtml")
+
+    manifest_entries = list()
+    spine_entries = list()
+    nav_entries = list()
+    ncx_entries = list()
+    img_ids = list()
+    modified_datetime = datetime(1, 1, 1)
+
+    image_pattern = r'^http://www.filfre.net/wp-content/uploads/(....)/(..)/(.*)$'
+    image_re = re.compile(image_pattern)
+
+    year_pattern = r'^\d\d\d\d.*$'
+    year_re = re.compile(year_pattern)
+
+    for article in book["articles"]:
+        content = request_cached_patched(article["filename"], article["url"])
+        root = html.fromstring(content)
+        entry_element = root.xpath("//div[@class='entry']").pop()
+
+        # handle img elements
+        for img_element in entry_element.xpath("//img"):
+            for img_del_attrib in ("srcset", "sizes"):
+                if img_del_attrib in img_element.attrib:
+                    del img_element.attrib[img_del_attrib]
+
+            img_element.attrib["class"] = "centered"
+
+            # redirect and manifest
+            img_src = img_element.attrib["src"]
+            img_match = image_re.match(img_src)
+            if img_match:
+                (year, month, filename) = img_match.groups()
+
+                if filename == "original_D+D-300x225.jpg":
+                    filename = "original_DnD-300x225.jpg"
+                filename = "%s-%s-%s" % (year, month, filename)
+
+                mime_type = None
+                filename_lower = filename.lower()
+                if filename_lower.endswith(".jpg") or filename_lower.endswith(".jpeg"):
+                    mime_type = "image/jpeg"
+                elif filename_lower.endswith(".png"):
+                    mime_type = "image/png"
+                elif filename_lower.endswith(".gif"):
+                    mime_type = "image/gif"
+                elif filename_lower.endswith(".bmp"):
+                    mime_type = "image/png"
+                    filename += ".png"
+                else:
+                    print "unidentified media type for", filename_lower
+
+                # make sure the image is cached
+                image = request_cached_patched(filename, img_src)
+                # copy to assets
+                dump(image, assets_dir + "/" + filename)
+                img_element.attrib["src"] = "../assets/" + filename
+
+                img_id = binascii.crc32(filename) & 0xffffffff
+                if img_id not in img_ids:
+                    img_ids.append(img_id)
+                    manifest_entries.append(
+                        '\t\t<item id="img-%08x" href="assets/%s" media-type="%s"/>'
+                        % (img_id, filename, mime_type)
+                    )
+
+        # handle div elements
+        for div_element in entry_element.xpath("//div[@align]"):
+            del div_element.attrib["align"]
+        for div_element in entry_element.xpath("//div[@style]"):
+            del div_element.attrib["style"]
+
+        for div_element in entry_element.xpath("//div[@class='wp-video']"):
+            a_element = None
+            for source_element in div_element.xpath("./video/source"):
+                src = source_element.attrib["src"]
+                src = src[:src.rfind('?')]
+                if src.startswith('/'):
+                    src = "http://www.filfre.net" + src
+                a_element = builder.A("See video at: " + src, href=src)
+            if a_element is not None:
+                parent_element = div_element.getparent()
+                parent_element.remove(div_element)
+                parent_element.append(a_element)
+
+        # handle span elements
+        for span_element in entry_element.xpath("//span[@id='spoiler']"):
+            text = span_element.text
+            if text is None:
+                for italic_element in span_element.xpath("./i"):
+                    text = italic_element.text
+            parent = span_element.getparent()
+            parent.remove(span_element)
+            if text is not None:
+                parent.text = "(Spoiler: " + text + ')'
+            else:
+                print "Error: could not find spoiler text"
+                sys.exit(-1)
+
+        # handle paragraph elements
+        for paragraph_element in entry_element.xpath("//p[@align]"):
+            del paragraph_element.attrib["align"]
+        for paragraph_element in entry_element.xpath("//p[@class='audioplayer_container']"):
+            paragraph_element.getparent().remove(paragraph_element)
+
+        # handle script elements
+        for script_element in entry_element.xpath("//script"):
+            parent = script_element.getparent()
+            parent.text = "Embedded Javascript removed for eBook."
+            parent.remove(script_element)
+
+        # handle iframe elements
+        for iframe_element in entry_element.xpath("//iframe"):
+            src = iframe_element.attrib["src"]
+            parent = iframe_element.getparent()
+            parent.remove(iframe_element)
+
+            anchor_element = builder.A("See " + src, href=src)
+            parent.append(anchor_element)
+
+        # handle anchor elements last because we insert them
+        for anchor_element in entry_element.xpath("//a[@href]"):
+            url = anchor_element.attrib["href"]
+            if url.startswith("www."):
+                url = "http://" + url
+            elif url.startswith('ww.'):
+                url = "http://w" + url
+            elif url.startswith('//'):
+                url = "http:" + url
+            elif url.startswith('/'):
+                url = "http://www.filfre.net" + url
+            elif year_re.match(url):
+                url = "http://www.filfre.net/" + url
+
+            url = url \
+                .replace('^', '%5E') \
+                .replace('$', '%24') \
+                .replace('{', '%7B') \
+                .replace('}', '%7D')
+            anchor_element.attrib["href"] = url
+
+        entry_children = entry_element.getchildren()[:-1]
+        entry = ''.join(map(lambda x: html.tostring(x, method="xml"), entry_children))
+
+        chapter_name = article["name"]
+        chapter_id = binascii.crc32(chapter_name) & 0xffffffff
+        chapter = chapter_template \
+            .replace("{name}", chapter_name) \
+            .replace("{title}", article["title"]) \
+            .replace("{date}", article["date"]) \
+            .replace("{entry}", entry)
+        chapter_filename = "%s-%s-%s.xhtml" % (article["year"], article["month"], chapter_name)
+        dump(chapter, content_dir + "/" + chapter_filename)
+
+        manifest_entry = '\t\t<item id="xhtml-%08x" href="content/%s" media-type="application/xhtml+xml"/>' \
+                         % (chapter_id, chapter_filename)
+        manifest_entries.append(manifest_entry)
+
+        spine_entry = '\t\t<itemref idref="xhtml-%08x"/>' % chapter_id
+        spine_entries.append(spine_entry)
+
+        nav_entries.append("\t\t\t\t<li>")
+        nav_entry = '\t\t\t\t\t<a href="%s">%s</a>' % (chapter_filename, article["title"])
+        nav_entries.append(nav_entry)
+
+        ncx_entries.append(
+            '\t\t<navPoint id="xhtml-%08x"><navLabel><text>%s</text></navLabel><content src="%s"/></navPoint>'
+            % (chapter_id, article["title"], chapter_filename)
+        )
+
+        # find last modified_date
+        modified_datetime = max(modified_datetime, datetime(int(article["year"]), int(article["month"]), 1))
+
+        # COMMENTS
+        if not book["has_comments"]:
+            nav_entries.append("\t\t\t\t</li>")
+            continue
+
+        comments_parts = root.get_element_by_id("comments")
+        try:
+            comments_title = comments_parts.get_element_by_id("comments-title")
+            comments_list = comments_parts.xpath("ol[@class='commentlist']").pop()
+            elements = \
+                comments_list.xpath("//div[@class='reply']") \
+                + comments_list.xpath("//div[@class='cl']") \
+                + comments_list.xpath("//strike")
+            for element in elements:
+                element.getparent().remove(element)
+            comments_list.tag = "ul"
+
+            chapter_name = article["name"] + "-comments"
+            chapter_id = binascii.crc32(chapter_name) & 0xffffffff
+            chapter_title = "Comments"
+            chapter_subtitle = comments_title.text[:-3]
+            chapter = chapter_template \
+                .replace("{name}", chapter_name) \
+                .replace("{title}", chapter_title) \
+                .replace("{date}", chapter_subtitle) \
+                .replace("{entry}", html.tostring(comments_list, method="xml"))
+            chapter_filename = "%s-%s-%s.xhtml" % (article["year"], article["month"], chapter_name)
+            dump(chapter, content_dir + "/" + chapter_filename)
+
+            manifest_entry = '\t\t<item id="xhtml-%08x" href="content/%s" media-type="application/xhtml+xml"/>' \
+                             % (chapter_id, chapter_filename)
+            manifest_entries.append(manifest_entry)
+
+            spine_entry = '\t\t<itemref idref="xhtml-%08x"/>' % chapter_id
+            spine_entries.append(spine_entry)
+
+            nav_entry = '\t\t\t\t\t<ol hidden="hidden"><li><a href="%s">%s</a></li></ol>' \
+                        % (chapter_filename, chapter_title)
+            nav_entries.append(nav_entry)
+            nav_entries.append("\t\t\t\t</li>")
+
+        except KeyError:
+            nav_entries.append("\t\t\t\t</li>")
+            print "Article has no comments", article["name"]
+
+    template = undump("templates/content.opf") \
+        .replace("{book-name}", book["name"]) \
+        .replace("{book-title}", book["title"]) \
+        .replace("{book-description}", book["description"]) \
+        .replace("{modified}", modified_datetime.isoformat()) \
+        .replace("{manifest-entries}", '\n'.join(manifest_entries)) \
+        .replace("{spine-entries}", '\n'.join(spine_entries))
+    dump(template, oebps_dir + "/content.opf")
+
+    now = datetime.now()
+    daysuffix = "th"
+    if now.day % 10 == 1:
+        daysuffix = "st"
+    elif now.day % 10 == 2:
+        daysuffix = "nd"
+    elif now.day % 10 == 3:
+        daysuffix = "rd"
+
+    template = undump("templates/titlepage.xhtml") \
+        .replace("{book-title}", book["title"].replace(", ", "<br/>")) \
+        .replace("{book-description}", book["description"]) \
+        .replace("{book-date}", now.strftime("%B " + str(now.day) + daysuffix + ", %Y"))
+    dump(template, content_dir + "/titlepage.xhtml")
+
+    template = undump("templates/nav.xhtml") \
+        .replace("{nav-entries}", '\n'.join(nav_entries))
+    dump(template, content_dir + "/nav.xhtml")
+
+    template = undump("templates/legacy-nav.ncx") \
+        .replace("{book-title}", book["title"]) \
+        .replace("{ncx-entries}", '\n'.join(ncx_entries))
+    dump(template, content_dir + "/legacy-nav.ncx")
+
+
+def dump_article_infos(articles):
+    article_infos = list()
+    i = 0
+    for article in articles:
+        i += 1
+        article_infos.append("%03i - %s - %s" % (i, article["name"], article["title"]))
+    dump('\n'.join(article_infos), "articles.txt")
+
+
+def init_config(filepath):
+    global config
+
+    config_parser = ConfigParser(allow_no_value=True)
+    config_parser.readfp(open(filepath))
+
+    config = dict()
+    for (x, y) in config_parser.items("general"):
+        config[x] = y
+    for (x, y) in config_parser.items(sys.platform):
+        config[x] = y
+
+    checkpath(config["bookpath"])
+    checkpath(config["cachepath"])
+    checkpath(config["patchpath"])
+
+
+def compile_book(book):
+    # compile bookpath to epub-file
+    epub_dir = checkpath(config["bookpath"] + "/" + book["name"])
+    epub_file = checkpath(config["bookpath"] + "/" + book["name"] + ".epub")
+    epub_error_file = checkpath(config["bookpath"] + "/" + book["name"] + "-error.epub.txt")
+    cwd = os.getcwd()
+    os.chdir(config["bookpath"])
+
+    if not os.path.exists(epub_file):
+        cmd = ' '.join(
+            (
+                config["epubcheck"],
+                epub_dir,
+                "--mode exp --save",
+                "2>",
+                epub_error_file
+            )
+        )
+        errorcode = os.system(cmd)
+        if errorcode != 0:
+            print "Errors found. See", epub_error_file
+            # during actual epubcheck bugs, the file will get written despite errors!
+            if os.path.exists(epub_file):
+                os.remove(epub_file)
+            sys.exit(-1)
+        os.remove(epub_error_file)
+
+    # compile bookpath to mobi-file
+    opf_file = checkpath(config["bookpath"] + "/" + book["name"] + "/OEBPS/content.opf")
+    mobi_sources_filename = checkpath(book["name"] + "-with-sources.mobi")
+    mobi_sources_file = checkpath(config["bookpath"] + mobi_sources_filename)
+    mobi_file = checkpath(config["bookpath"] + "/" + book["name"] + ".mobi")
+    mobi_sources_error_file = checkpath(config["bookpath"] + "/" + book["name"] + "-error-with-sources.mobi.txt")
+
+    if not os.path.exists(mobi_file) and not os.path.exists(mobi_sources_file):
+        cmd = ' '.join(
+            (
+                config["kindlegen"],
+                config["compression"],
+                opf_file,
+                "-o",
+                mobi_sources_filename,
+                "2>",
+                mobi_sources_error_file
+            )
+        )
+        errorcode = os.system(cmd)
+        if errorcode != 0:
+            print "Errors found. See", mobi_sources_error_file
+            sys.exit(-1)
+        # move generated file to normal place
+        shutil.move(os.path.join(config["bookpath"], book["name"], "OEBPS", mobi_sources_filename), mobi_sources_file)
+        os.remove(mobi_sources_error_file)
+
+    # strip mobi file
+    if not os.path.exists(mobi_file):
+        kindlestrip(("", mobi_sources_file, mobi_file))
+        os.remove(mobi_sources_file)
+
+    os.chdir(cwd)
+
+
+def main():
+    normalize_dir()
+    init_request()
+    init_config("antiquarian.ini")
+
+    sitemap = request_cached_debug(config["cachepath"] + "/sitemap.html", "http://www.filfre.net/sitemap/")
+
+    articles_info = get_articles_info(sitemap)
+    for book in get_books(articles_info, int(config["volumes_min"]), int(config["volumes_max"])):
+        transform_articles(book)
+        compile_book(book)
+
+
+if __name__ == "__main__":
+    main()

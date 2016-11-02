@@ -1,0 +1,11 @@
+.bottom {
+	position: absolute;
+	bottom: 0;
+}
+ul.commentlist, ul.children {
+	padding-left: 1em;
+}
+img.centered {
+	display: block;
+	margin: 1em auto;
+}

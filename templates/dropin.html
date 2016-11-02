@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<div id="ebooks"></div>
+<script type="text/javascript">
+var eBooksPath = "https://dl.dropboxusercontent.com/u/3883408/",
+	eBooksThumbsPath = "https://dl.dropboxusercontent.com/u/3883408/",
+	eBooksCount = 9;
+	eBooksEditionComments = false,
+	eBooksToggleEdition = function() {
+		eBooksEditionComments = !eBooksEditionComments;
+		eBooksUpdate(jQuery);
+	},
+	eBooksFormatMobi = false,
+	eBooksToggleFormat = function() {
+		eBooksFormatMobi = !eBooksFormatMobi;
+		eBooksUpdate(jQuery);
+	},
+	eBooksUpdate = function($) {
+		var $eBooks = $("#ebooks").empty(),
+			$toggles = $("<p/>").append([
+				$("<button/>", {
+					text: "Switch Edition",
+					click: eBooksToggleEdition,
+				}),
+				$("<br/>"),
+				$("<button/>", {
+					text: "Switch Format",
+					click: eBooksToggleFormat,
+				})
+			]),
+			$info = $("<p/>", {
+				text: "Links for " 
+					+ (eBooksEditionComments ? "Comments" : "Regular") 
+					+ " Editions in "
+					+ (eBooksFormatMobi ? "Kindle" : "ePub")
+					+ " Format:"
+			}),
+			$clear = $("<div/>", {style: "clear:both;"});
+		$eBooks.append([$info, $toggles]);
+		for (var i = 1; i <= eBooksCount; i++) {
+			var j = ('0' + i).slice(-2),
+				$wrap = $("<div/>", {style: "float:left; width:33.33%; text-align:center; margin: 0 0 0.5rem 0;"}),
+				$link = $("<a/>", {
+					href: eBooksPath + "the-digital-antiquarian-vol-" + j 
+						+ (eBooksEditionComments ? "-comments" : "") 
+						+ (eBooksFormatMobi ? ".mobi" : ".epub")
+				}),
+				$cover = $("<img/>", {
+					src: eBooksThumbsPath + "thumbs/thumb-vol-" + j
+						+ (eBooksEditionComments ? "-comments" : "") 
+						+ ".jpg",
+					style: "border: 0;"
+				});
+			$eBooks.append($wrap.append($link.append($cover)));
+		}
+		$eBooks.append($clear);
+	};
+eBooksUpdate(jQuery);
+</script>
+
+</body>
+</html>

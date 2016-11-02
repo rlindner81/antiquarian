@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="unique-identifier" version="3.0">
+	<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
+		<dc:identifier id="unique-identifier">{book-name}</dc:identifier>
+		<dc:title id="title">{book-title}</dc:title>
+		<meta refines="#title" property="title-type">main</meta>
+		<meta refines="#title" property="display-seq">1</meta>
+		<dc:title id="subtitle">A History of Computer Entertainment</dc:title>
+		<meta refines="#subtitle" property="title-type">subtitle</meta>
+		<meta refines="#subtitle" property="display-seq">2</meta>
+		<dc:language>en</dc:language>
+		<dc:creator id="author">Jimmy Maher</dc:creator>
+		<meta refines="#author" property="file-as">MAHER, JIMMY</meta>
+		<meta refines="#author" property="role" scheme="marc:relators">aut</meta>
+		<dc:contributor id="bookdesigner">Richard Lindner</dc:contributor>
+		<meta refines="#bookdesigner" property="file-as">LINDNER, RICHARD</meta>
+		<meta refines="#bookdesigner" property="role" scheme="marc:relators">bkd</meta>
+		<meta property="dcterms:modified">{modified}Z</meta>
+		<meta name="cover" content="cover-image"/>
+		<dc:description>{book-description}</dc:description>
+	</metadata>
+	<manifest>
+		<item id="cover-image" href="assets/cover.jpg" media-type="image/jpg"/>
+		<item id="titlepage" href="content/titlepage.xhtml" media-type="application/xhtml+xml"/>
+		<item id="nav" href="content/nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+		<item id="legacy-nav" href="content/legacy-nav.ncx" media-type="application/x-dtbncx+xml"/>
+		<item id="style" href="content/style.css" media-type="text/css"/>
+{manifest-entries}
+	</manifest>
+	<spine toc="legacy-nav">
+		<itemref idref="titlepage"/>
+		<itemref idref="nav"/>
+{spine-entries}
+	</spine>
+</package>
