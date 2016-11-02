@@ -28,10 +28,11 @@ def normalize_dir():
 
 
 def request_cached_patched(filepath, *openargs):
-    patched_filepath = checkpath(config["patchpath"] + "/" + filepath)
-    content = request_cached_debug(patched_filepath, *openargs)
+    cached_filepath = checkpath(config["cachepath"] + "/" + filepath)
+    content = request_cached_debug(cached_filepath, *openargs)
 
     # use patches where appropriate
+    patched_filepath = checkpath(config["patchpath"] + "/" + filepath)
     if os.path.exists(patched_filepath):
         with open(patched_filepath, "rb") as fin:
             print "using patched file for", filepath
@@ -41,7 +42,6 @@ def request_cached_patched(filepath, *openargs):
 
 def get_articles_info(sitemap):
     articles = dict()
-    # articles_list = list()
 
     # filter year, month, name from url
     urlinfo_pattern = r'^http://www.filfre.net/(....)/(..)/(.+?)/$'
@@ -71,7 +71,6 @@ def get_articles_info(sitemap):
             "date": date,
             "filename": filename,
         }
-    # articles_list.append(name)
 
     return articles
 
@@ -342,15 +341,6 @@ def transform_articles(book):
         .replace("{book-title}", book["title"]) \
         .replace("{ncx-entries}", '\n'.join(ncx_entries))
     dump(template, content_dir + "/legacy-nav.ncx")
-
-
-def dump_article_infos(articles):
-    article_infos = list()
-    i = 0
-    for article in articles:
-        i += 1
-        article_infos.append("%03i - %s - %s" % (i, article["name"], article["title"]))
-    dump('\n'.join(article_infos), "articles.txt")
 
 
 def init_config(filepath):
