@@ -187,7 +187,7 @@ def transform_articles(book):
             if text is not None:
                 parent.text = "(Spoiler: " + text + ')'
             else:
-                print "Error: could not find spoiler text"
+                print "error: could not find spoiler text"
                 sys.exit(-1)
 
         # handle paragraph elements
@@ -307,7 +307,7 @@ def transform_articles(book):
 
         except KeyError:
             nav_entries.append("\t\t\t\t</li>")
-            print "Article has no comments", article["name"]
+            print "article has no comments", article["name"]
 
     template = undump("templates/content.opf") \
         .replace("{book-name}", book["name"]) \
@@ -380,7 +380,7 @@ def compile_book(book):
         )
         errorcode = os.system(cmd)
         if errorcode != 0:
-            print "Errors found. See", epub_error_file
+            print "errors found... see", epub_error_file
             # during actual epubcheck bugs, the file will get written despite errors!
             if os.path.exists(epub_file):
                 os.remove(epub_file)
@@ -408,7 +408,7 @@ def compile_book(book):
         )
         errorcode = os.system(cmd)
         if errorcode != 0:
-            print "Errors found. See", mobi_sources_error_file
+            print "errors found... see", mobi_sources_error_file
             sys.exit(-1)
         # move generated file to normal place
         shutil.move(os.path.join(config["bookpath"], book["name"], "OEBPS", mobi_sources_filename), mobi_sources_file)
