@@ -225,6 +225,9 @@ def transform_articles(book):
             elif year_re.match(url):
                 url = "http://www.filfre.net/" + url
 
+            if url.endswith('"'):
+                url = url[:-1]
+
             url = url \
                 .replace('^', '%5E') \
                 .replace('$', '%24') \
