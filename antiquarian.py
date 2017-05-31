@@ -161,17 +161,21 @@ def transform_articles(book):
             del div_element.attrib["style"]
 
         for div_element in entry_element.xpath("//div[@class='wp-video']"):
-            a_element = None
+            new_element = None
             for source_element in div_element.xpath("./video/source"):
                 src = source_element.attrib["src"]
                 src = src[:src.rfind('?')]
                 if src.startswith('/'):
                     src = "http://www.filfre.net" + src
-                a_element = builder.A("See video at: " + src, href=src)
-            if a_element is not None:
+                new_element = builder.P(
+                    "See video at:",
+                    builder.BR,
+                    builder.A(src, href=src)
+                )
+            if new_element is not None:
                 parent_element = div_element.getparent()
                 parent_element.remove(div_element)
-                parent_element.append(a_element)
+                parent_element.append(new_element)
 
         # handle span elements
         for span_element in entry_element.xpath("//span[@id='spoiler']"):
