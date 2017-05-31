@@ -387,6 +387,18 @@ def get_books(articles_info, volumes_min, volumes_max):
                 "kit-williamss-golden-hare-part-2-the-aftermath",
                 "the-end-of-the-line-for-level-9-as-the-market-takes-its-toll-on-magnetic-scrolls"
             )
+        },
+        {
+            "number": "11",
+            "historical_year": "historical year 1989",
+            "name": "the-digital-antiquarian-vol-11",
+            "title": "The Digital Antiquarian, Volume 11: 1989",
+            "cover": "cover-vol-11.jpg",
+            "articles": (
+                "simcity-part-1-will-wrights-city-in-a-box",
+                "one-is-enough-for-simcity",
+                "acorn-and-amstrad"
+            )
         }
     )
 
