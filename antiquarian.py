@@ -3,20 +3,17 @@
 import binascii
 import os
 import re
-import sys
 import shutil
+import sys
 from ConfigParser import RawConfigParser as ConfigParser
 from datetime import datetime
 
-from books import get_books
-from request import init_request, request_cached_debug, dump, undump, copydump, checkpath
-
-# http://www.lfd.uci.edu/~gohlke/pythonlibs/
 from lxml import html
 from lxml.html import builder
 
-# http://www.mobileread.com/forums/showthread.php?t=96903
+from books import get_books
 from kindlestrip_v136 import main as kindlestrip
+from request import init_request, request, request_cached, dump, undump, copydump, checkpath
 
 config = None
 
@@ -29,7 +26,7 @@ def normalize_dir():
 
 def request_cached_patched(filepath, *openargs):
     cached_filepath = checkpath(config["cachepath"] + "/" + filepath)
-    content = request_cached_debug(cached_filepath, *openargs)
+    content = request_cached(cached_filepath, *openargs, debug=True)
 
     # use patches where appropriate
     patched_filepath = checkpath(config["patchpath"] + "/" + filepath)
@@ -430,7 +427,8 @@ def main():
     init_request()
     init_config("antiquarian.ini")
 
-    sitemap = request_cached_debug(config["cachepath"] + "/sitemap.html", "http://www.filfre.net/sitemap/")
+    #    sitemap = request_cached(config["cachepath"] + "/sitemap.html", "http://www.filfre.net/sitemap/", debug=True)
+    sitemap = request("http://www.filfre.net/sitemap/", debug=True)
 
     articles_info = get_articles_info(sitemap)
     for book in get_books(articles_info, int(config["volumes_min"]), int(config["volumes_max"])):

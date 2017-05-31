@@ -396,8 +396,25 @@ def get_books(articles_info, volumes_min, volumes_max):
             "cover": "cover-vol-11.jpg",
             "articles": (
                 "simcity-part-1-will-wrights-city-in-a-box",
-                "one-is-enough-for-simcity",
-                "acorn-and-amstrad"
+                "acorn-and-amstrad",
+                "peter-molyneuxs-kingdom-in-a-box",
+                "shogun",
+                "journey",
+                "arthur-the-quest-for-excalibur",
+                "going-to-california",
+                "agt",
+                "a-conversation-with-lane-barrow",
+                "ibms-new-flavor",
+                "sierra-gets-creative",
+                "so-you-want-to-be-a-hero",
+                "cracking-open-the-mac",
+                "the-freedom-to-associate",
+                "a-slow-motion-revolution",
+                "the-manhole",
+                "cinemawares-year-in-the-desert",
+                "how-jordan-mechner-made-a-different-sort-of-interactive-movie-or-the-virtues-of-restraint",
+                "the-prophet-of-cyberspace",
+                "turning-on-booting-up-and-jacking-into-neuromancer"
             )
         }
     )

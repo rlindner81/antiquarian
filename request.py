@@ -1,22 +1,29 @@
-import urllib2
 import cookielib
-import time
 import os
+import sys
+import time
+import urllib2
 
 
-def init_request():
+def init_request(proxy=None):
     handlers = list()
     handlers.append(urllib2.HTTPHandler())
+
+    if proxy:
+        proxy_handler = urllib2.ProxyHandler({"http": proxy, "https": proxy})
+        handlers.append(proxy_handler)
 
     cookiejar = cookielib.CookieJar()
     cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
     handlers.append(cookie_handler)
 
     opener = urllib2.build_opener(*handlers)
+    opener.addheaders = [("User-agent", "Mozilla/5.0")]
     urllib2.install_opener(opener)
 
 
 def request_response(*req_args, **req_kwargs):
+    res = None
     req = urllib2.Request(*req_args, **req_kwargs)
     attempt = 1
     while True:
@@ -33,17 +40,62 @@ def request_response(*req_args, **req_kwargs):
 
 
 def request(*req_args, **req_kwargs):
+    debug = False
+    if "debug" in req_kwargs:
+        debug = req_kwargs["debug"]
+        del req_kwargs["debug"]
+
+    starttime = None
+    if debug:
+        print "req", req_args[0]
+        starttime = time.time()
+
     res = request_response(*req_args, **req_kwargs)
+
+    if debug:
+        endtime = time.time() - starttime
+        print "res", "%.2fs" % endtime, res.code, res.url
+
     return res.read()
 
 
-def request_debug(*req_args, **req_kwargs):
-    print "req", req_args[0]
-    starttime = time.time()
+def request_cached(path, *req_args, **req_kwargs):
+    path = checkpath(path)
+    if os.path.exists(path):
+        return undump(path)
+    else:
+        content = request(*req_args, **req_kwargs)
+        dump(content, path)
+        return content
+
+
+def download_request(path, *req_args, **req_kwargs):
+    path = checkpath(path)
     res = request_response(*req_args, **req_kwargs)
-    endtime = time.time() - starttime
-    print "res", "%.2fs" % endtime, res.code, res.url
-    return res.read()
+
+    chunksize = 1 << 14
+    totaldots = 60
+
+    res_info = res.info()
+    res_size = int(res_info.getheaders("Content-Length")[0])
+    res_chunks = res_size / chunksize
+    out_chunks = 0
+    dots_old = 0
+
+    with open(path, "wb") as fout:
+        while True:
+            chunk = res.read(chunksize)
+            if not chunk:
+                break
+            fout.write(chunk)
+            out_chunks += 1
+            dots = totaldots * out_chunks / res_chunks
+
+            if dots > dots_old:
+                dots_old = dots
+                sys.stdout.write(".")
+                sys.stdout.flush()
+    print " loaded {} bytes".format(res_size)
 
 
 def checkpath(path):
@@ -82,23 +134,3 @@ def copydump(inpath, outpath):
     fout.write(fin.read())
     fin.close()
     fout.close()
-
-
-def request_cached(path, *openargs):
-    path = checkpath(path)
-    if os.path.exists(path):
-        return undump(path)
-    else:
-        content = request(*openargs)
-        dump(content, path)
-        return content
-
-
-def request_cached_debug(path, *openargs):
-    path = checkpath(path)
-    if os.path.exists(path):
-        return undump(path)
-    else:
-        content = request_debug(*openargs)
-        dump(content, path)
-        return content
