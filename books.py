@@ -416,6 +416,37 @@ def get_books(articles_info, volumes_min, volumes_max):
                 "the-prophet-of-cyberspace",
                 "turning-on-booting-up-and-jacking-into-neuromancer"
             )
+        },
+        {
+            "number": "12",
+            "historical_year": "historical year 1990",
+            "name": "the-digital-antiquarian-vol-12",
+            "title": "The Digital Antiquarian, Volume 12: 1990",
+            "cover": "cover-vol-12.jpg",
+            "articles": (
+                "a-working-class-hero-part-1",
+                "a-working-class-hero-part-2-bloody-april",
+                "a-working-class-hero-part-3-ace-and-tactician",
+                "a-working-class-hero-part-4-a-heros-legacy",
+                "a-time-of-endings-part-1-cinemaware",
+                "a-time-of-endings-part-2-epyx",
+                "a-time-of-endings-part-3-mediagenic-or-the-patent-from-hell",
+                "a-time-of-endings-part-4-magnetic-scrolls",
+                "a-time-of-beginnings-legend-entertainment-or-bob-and-mikes-excellent-adventure-game-company",
+                "the-spellcasting-series-or-how-much-ernie-eaglebeak-is-too-much-ernie-eaglebeak",
+                "tads",
+                "the-eastgate-school-of-serious-hypertext",
+                "loom-or-how-brian-moriarty-proved-that-less-is-sometimes-more",
+                "monkey-island-or-how-ron-gilbert-made-an-adventure-game-that-didnt-suck",
+                "railroad-tycoon",
+                "whats-the-matter-with-covert-action",
+                "opening-the-gold-box-part-5-all-that-glitters-is-not-gold",
+                "ultima-vi",
+                "the-640-k-barrier",
+                "from-squadron-to-wingleader",
+                "from-wingleader-to-wing-commander",
+                "the-view-from-the-trenches-or-some-deadly-sins-of-crpg-design"
+            )
         }
     )
 
