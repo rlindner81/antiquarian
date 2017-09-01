@@ -236,6 +236,14 @@ def transform_articles(book):
                 .replace('}', '%7D')
             anchor_element.attrib["href"] = url
 
+        # handle emphasis elements
+        # NOTE: this fixes a weird bug in Jimmy's setup where an apostrophe after an emphasis gets reversed
+        for em_element in entry_element.xpath("//em"):
+            if em_element.tail:
+                if em_element.tail.startswith(u'\u2018s'):
+                    em_element.tail = em_element.tail[2:]
+                    em_element.text = em_element.text + u'\u2019s'
+
         entry_children = entry_element.getchildren()[:-1]
         entry = ''.join(map(lambda x: html.tostring(x, method="xml"), entry_children))
 
