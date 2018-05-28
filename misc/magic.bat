@@ -1,6 +1,6 @@
 @ECHO OFF
 SETLOCAL enableDelayedExpansion
-FOR /L %%i IN (1,1,12) DO (
+FOR /L %%i IN (13,13,13) DO (
 	SET j=0%%i
 	SET j=!j:~-2!
 	ECHO processing volume !j!
