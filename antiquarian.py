@@ -41,8 +41,7 @@ def get_articles_info(sitemap):
     articles = dict()
 
     # filter year, month, name from url
-    urlinfo_pattern = r'^http://www.filfre.net/(....)/(..)/(.+?)/$'
-    urlinfo_re = re.compile(urlinfo_pattern)
+    urlinfo_re = re.compile(r'^https://www.filfre.net/(....)/(..)/(.+?)/$')
 
     root = html.fromstring(sitemap)
     list_elements = root.xpath("//div[@class='entry']/*/ul/li")
@@ -97,7 +96,7 @@ def transform_articles(book):
     img_ids = list()
     modified_datetime = datetime(1, 1, 1)
 
-    image_pattern = r'^http://www.filfre.net/wp-content/uploads/(....)/(..)/(.*)$'
+    image_pattern = r'^https://www.filfre.net/wp-content/uploads/(....)/(..)/(.*)$'
     image_re = re.compile(image_pattern)
 
     year_pattern = r'^\d\d\d\d.*$'
@@ -166,7 +165,7 @@ def transform_articles(book):
                 src = source_element.attrib["src"]
                 src = src[:src.rfind('?')]
                 if src.startswith('/'):
-                    src = "http://www.filfre.net" + src
+                    src = "https://www.filfre.net" + src
                 new_element = builder.P(
                     "See video at:",
                     builder.BR,
@@ -216,15 +215,15 @@ def transform_articles(book):
         for anchor_element in entry_element.xpath("//a[@href]"):
             url = anchor_element.attrib["href"]
             if url.startswith("www."):
-                url = "http://" + url
+                url = "https://" + url
             elif url.startswith('ww.'):
-                url = "http://w" + url
+                url = "https://w" + url
             elif url.startswith('//'):
-                url = "http:" + url
+                url = "https:" + url
             elif url.startswith('/'):
-                url = "http://www.filfre.net" + url
+                url = "https://www.filfre.net" + url
             elif year_re.match(url):
-                url = "http://www.filfre.net/" + url
+                url = "https://www.filfre.net/" + url
 
             if url.endswith('"'):
                 url = url[:-1]
@@ -233,7 +232,8 @@ def transform_articles(book):
                 .replace('^', '%5E') \
                 .replace('$', '%24') \
                 .replace('{', '%7B') \
-                .replace('}', '%7D')
+                .replace('}', '%7D') \
+                .replace(' ', '%20')
             anchor_element.attrib["href"] = url
 
         # handle emphasis elements
@@ -439,8 +439,8 @@ def main():
     init_request()
     init_config("antiquarian.ini")
 
-    #    sitemap = request_cached(config["cachepath"] + "/sitemap.html", "http://www.filfre.net/sitemap/", debug=True)
-    sitemap = request("http://www.filfre.net/sitemap/", debug=True)
+    #    sitemap = request_cached(config["cachepath"] + "/sitemap.html", "https://www.filfre.net/sitemap/", debug=True)
+    sitemap = request("https://www.filfre.net/sitemap/", debug=True)
 
     articles_info = get_articles_info(sitemap)
     for book in get_books(articles_info, int(config["volumes_min"]), int(config["volumes_max"])):
