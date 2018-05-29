@@ -41,7 +41,7 @@ def get_articles_info(sitemap):
     articles = dict()
 
     # filter year, month, name from url
-    urlinfo_re = re.compile(r'^https://www.filfre.net/(....)/(..)/(.+?)/$')
+    urlinfo_re = re.compile(r"^https://www.filfre.net/(....)/(..)/(.+?)/$")
 
     root = html.fromstring(sitemap)
     list_elements = root.xpath("//div[@class='entry']/*/ul/li")
@@ -96,10 +96,10 @@ def transform_articles(book):
     img_ids = list()
     modified_datetime = datetime(1, 1, 1)
 
-    image_pattern = r'^https://www.filfre.net/wp-content/uploads/(....)/(..)/(.*)$'
+    image_pattern = r"^https://www.filfre.net/wp-content/uploads/(....)/(..)/(.*)$"
     image_re = re.compile(image_pattern)
 
-    year_pattern = r'^\d\d\d\d.*$'
+    year_pattern = r"^\d\d\d\d.*$"
     year_re = re.compile(year_pattern)
 
     for article in book["articles"]:
@@ -163,8 +163,8 @@ def transform_articles(book):
             new_element = None
             for source_element in div_element.xpath("./video/source"):
                 src = source_element.attrib["src"]
-                src = src[:src.rfind('?')]
-                if src.startswith('/'):
+                src = src[:src.rfind("?")]
+                if src.startswith("/"):
                     src = "https://www.filfre.net" + src
                 new_element = builder.P(
                     "See video at:",
@@ -185,7 +185,7 @@ def transform_articles(book):
             parent = span_element.getparent()
             parent.remove(span_element)
             if text is not None:
-                parent.text = "(Spoiler: " + text + ')'
+                parent.text = "(Spoiler: " + text + ")"
             else:
                 print "error: could not find spoiler text"
                 sys.exit(-1)
@@ -216,11 +216,11 @@ def transform_articles(book):
             url = anchor_element.attrib["href"]
             if url.startswith("www."):
                 url = "https://" + url
-            elif url.startswith('ww.'):
+            elif url.startswith("ww."):
                 url = "https://w" + url
-            elif url.startswith('//'):
+            elif url.startswith("//"):
                 url = "https:" + url
-            elif url.startswith('/'):
+            elif url.startswith("/"):
                 url = "https://www.filfre.net" + url
             elif year_re.match(url):
                 url = "https://www.filfre.net/" + url
@@ -229,23 +229,22 @@ def transform_articles(book):
                 url = url[:-1]
 
             url = url \
-                .replace('^', '%5E') \
-                .replace('$', '%24') \
-                .replace('{', '%7B') \
-                .replace('}', '%7D') \
-                .replace(' ', '%20')
+                .replace("^", "%5E") \
+                .replace("$", "%24") \
+                .replace("{", "%7B") \
+                .replace("}", "%7D")
             anchor_element.attrib["href"] = url
 
         # handle emphasis elements
         # NOTE: this fixes a weird bug in Jimmy's setup where an apostrophe after an emphasis gets reversed
         for em_element in entry_element.xpath("//em"):
             if em_element.tail:
-                if em_element.tail.startswith(u'\u2018s'):
+                if em_element.tail.startswith(u"\u2018s"):
                     em_element.tail = em_element.tail[2:]
-                    em_element.text = em_element.text + u'\u2019s'
+                    em_element.text = em_element.text + u"\u2019s"
 
         entry_children = entry_element.getchildren()[:-1]
-        entry = ''.join(map(lambda x: html.tostring(x, method="xml"), entry_children))
+        entry = "".join(map(lambda x: html.tostring(x, method="xml"), entry_children))
 
         chapter_name = article["name"]
         chapter_id = binascii.crc32(chapter_name) & 0xffffffff
@@ -326,8 +325,8 @@ def transform_articles(book):
         .replace("{book-title}", book["title"]) \
         .replace("{book-description}", book["description"]) \
         .replace("{modified}", modified_datetime.isoformat()) \
-        .replace("{manifest-entries}", '\n'.join(manifest_entries)) \
-        .replace("{spine-entries}", '\n'.join(spine_entries))
+        .replace("{manifest-entries}", "\n".join(manifest_entries)) \
+        .replace("{spine-entries}", "\n".join(spine_entries))
     dump(template, oebps_dir + "/content.opf")
 
     now = datetime.now()
@@ -346,12 +345,12 @@ def transform_articles(book):
     dump(template, content_dir + "/titlepage.xhtml")
 
     template = undump("templates/nav.xhtml") \
-        .replace("{nav-entries}", '\n'.join(nav_entries))
+        .replace("{nav-entries}", "\n".join(nav_entries))
     dump(template, content_dir + "/nav.xhtml")
 
     template = undump("templates/legacy-nav.ncx") \
         .replace("{book-title}", book["title"]) \
-        .replace("{ncx-entries}", '\n'.join(ncx_entries))
+        .replace("{ncx-entries}", "\n".join(ncx_entries))
     dump(template, content_dir + "/legacy-nav.ncx")
 
 
@@ -381,7 +380,7 @@ def compile_book(book):
     os.chdir(config["bookpath"])
 
     if not os.path.exists(epub_file):
-        cmd = ' '.join(
+        cmd = " ".join(
             (
                 config["epubcheck"],
                 epub_dir,
@@ -407,7 +406,7 @@ def compile_book(book):
     mobi_sources_error_file = checkpath(config["bookpath"] + "/" + book["name"] + "-error-with-sources.mobi.txt")
 
     if not os.path.exists(mobi_file) and not os.path.exists(mobi_sources_file):
-        cmd = ' '.join(
+        cmd = " ".join(
             (
                 config["kindlegen"],
                 config["compression"],
