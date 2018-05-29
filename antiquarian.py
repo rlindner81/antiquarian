@@ -159,6 +159,10 @@ def transform_articles(book):
         for div_element in entry_element.xpath("//div[@style]"):
             del div_element.attrib["style"]
 
+        for div_element in entry_element.xpath("//div[@class='skip-for-ebook']"):
+            parent_element = div_element.getparent()
+            parent_element.remove(div_element)
+
         for div_element in entry_element.xpath("//div[@class='wp-video']"):
             new_element = None
             for source_element in div_element.xpath("./video/source"):
