@@ -453,7 +453,7 @@ def get_books(articles_info, volumes_min, volumes_max):
             "historical_year": "historical year 1991",
             "name": "the-digital-antiquarian-vol-13",
             "title": "The Digital Antiquarian, Volume 13: 1991",
-            "cover": "cover-vol-01.jpg",
+            "cover": "cover-vol-13.jpg",
             "articles": (
                 "the-many-faces-of-middle-earth-1954-1989",
                 "an-independent-interplay-takes-on-tolkien",
