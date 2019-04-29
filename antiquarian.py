@@ -153,6 +153,24 @@ def transform_articles(book):
                         % (img_id, filename, mime_type)
                     )
 
+        # handle audio elements
+        for audio_element in entry_element.xpath("//audio"):
+            new_element = None
+            for source_element in audio_element.xpath("./source"):
+                src = source_element.attrib["src"]
+                src = src[:src.rfind("?")]
+                if src.startswith("/"):
+                    src = "https://www.filfre.net" + src
+                new_element = builder.P(
+                    "Link to audio:",
+                    builder.BR,
+                    builder.A(src, href=src)
+                )
+            if new_element is not None:
+                parent_element = audio_element.getparent()
+                parent_element.remove(audio_element)
+                parent_element.append(new_element)
+
         # handle div elements
         for div_element in entry_element.xpath("//div[@align]"):
             del div_element.attrib["align"]
@@ -167,7 +185,7 @@ def transform_articles(book):
                 if src.startswith("/"):
                     src = "https://www.filfre.net" + src
                 new_element = builder.P(
-                    "See video at:",
+                    "Link to video:",
                     builder.BR,
                     builder.A(src, href=src)
                 )
@@ -349,6 +367,7 @@ def transform_articles(book):
     dump(template, content_dir + "/nav.xhtml")
 
     template = undump("templates/legacy-nav.ncx") \
+        .replace("{book-name}", book["name"]) \
         .replace("{book-title}", book["title"]) \
         .replace("{ncx-entries}", "\n".join(ncx_entries))
     dump(template, content_dir + "/legacy-nav.ncx")
