@@ -504,6 +504,49 @@ def get_books(articles_info, volumes_min, volumes_max):
                 "the-game-of-everything-part-9-civilization-and-economics",
                 "the-game-of-everything-part-10-civilization-and-the-limits-of-progress"
             )
+        },
+        {
+            "number": "14",
+            "historical_year": "historical year 1992",
+            "name": "the-digital-antiquarian-vol-14",
+            "title": "The Digital Antiquarian, Volume 14: 1992",
+            "cover": "cover-vol-14.jpg",
+            "articles": (
+                "the-dynamic-interactive-narratives-of-dynamix",
+                "the-incredible-machine",
+                "another-world",
+                "doing-windows-part-1-ms-dos-and-its-discontents",
+                "doing-windows-part-2-from-interface-manager-to-windows",
+                "doing-windows-part-3-a-pair-of-strike-outs",
+                "doing-windows-part-4-the-rapprochement",
+                "doing-windows-part-5-a-second-try",
+                "doing-windows-part-6-look-and-feel",
+                "doing-windows-part-7-third-times-the-charm",
+                "doing-windows-part-8-the-outsiders",
+                "doing-windows-part-9-windows-comes-home",
+                "the-games-of-windows",
+                "agrippa-a-book-of-the-dead",
+                "shades-of-gray",
+                "the-gateway-games-of-legend-preceded-by-the-legend-of-gateway",
+                "indiana-jones-and-the-fate-of-atlantis-or-of-movies-and-games-and-whether-the-twain-shall-meet",
+                "whither-the-software-artist-or-how-trip-hawkins-learned-to-stop-worrying-and-love-the-consoles",
+                "the-lost-files-of-sherlock-holmes",
+                "the-sierra-discovery-adventures",
+                "quest-for-glory-iii-and-iv",
+                "ten-great-adventure-game-puzzles",
+                "the-designers-designer",
+                "controlling-the-spice-part-1-dune-on-page-and-screen",
+                "controlling-the-spice-part-2-cryos-dune",
+                "controlling-the-spice-part-3-westwoods-dune",
+                "star-control-ii",
+                "life-on-the-grid",
+                "life-off-the-grid-part-1-making-ultima-underworld",
+                "life-off-the-grid-part-2-playing-ultima-underworld",
+                "ultima-vii",
+                "scientology-and-the-fellowship",
+                "darklands",
+                "interplay-takes-on-trek"
+            )
         }
     )
 
