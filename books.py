@@ -547,6 +547,44 @@ def get_books(articles_info, volumes_min, volumes_max):
                 "darklands",
                 "interplay-takes-on-trek"
             )
+        },
+        {
+            "number": "15",
+            "historical_year": "historical year 1993",
+            "name": "the-digital-antiquarian-vol-15",
+            "title": "The Digital Antiquarian, Volume 15: 1993",
+            "cover": "cover-vol-15.jpg",
+            "articles": (
+                "an-unlikely-savior",
+                "return-to-zork",
+                "the-last-works-before-the-renaissance",
+                "day-of-the-tentacle",
+                "sam-and-max-hit-the-road",
+                "the-mortgaging-of-sierra-online",
+                "chief-gates-comes-to-oakhurst-a-cop-drama",
+                "gabriel-knight-sins-of-the-fathers",
+                "alone-in-the-dark",
+                "origin-sells-out",
+                "opening-the-gold-box-part-6-a-troubled-marriage",
+                "betrayal-at-krondor",
+                "new-tricks-for-an-old-z-machine-part-1-digging-the-trenches",
+                "new-tricks-for-an-old-z-machine-part-2-hacking-deeper-or-follies-of-graham-nelsons-youth",
+                "new-tricks-for-an-old-z-machine-part-3-a-renaissance-is-nigh",
+                "eric-the-unready",
+                "companions-of-xanth-preceded-by-the-worrisome-case-of-piers-anthony",
+                "buzz-aldrins-race-into-space-and-space-program-games-in-general",
+                "master-of-orion",
+                "the-deal-of-the-century-or-the-alliance-of-losers",
+                "myst-or-the-drawbacks-to-success",
+                "the-68000-wars-part-6-the-unraveling",
+                "lemmings-2-the-tribes",
+                "the-7th-guests-new-clothes",
+                "the-shareware-scene-part-1-the-pioneers",
+                "the-shareware-scene-part-2-the-question-of-games",
+                "the-shareware-scene-part-3-the-id-boys",
+                "the-shareware-scene-part-4-doom",
+                "the-shareware-scene-part-5-narratives-of-doom"
+            )
         }
     )
 

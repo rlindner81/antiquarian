@@ -1,0 +1,4 @@
+In Gimp
+* select the text image layer
+* go to Filters -> Light and Shadow
+* Drop Shadow (legacy) x:5,y:5,blur:10,opacity:95

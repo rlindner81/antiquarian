@@ -1,4 +1,0 @@
-In Gimp
-* select the background image layer
-* go to Colors -> Hue-Saturation
-* add 30 degree on the hue scale for each new cover
