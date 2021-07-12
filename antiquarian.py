@@ -263,7 +263,7 @@ def transform_articles(book):
             if em_element.tail:
                 if em_element.tail.startswith(u"\u2018s"):
                     em_element.tail = em_element.tail[2:]
-                    em_element.text = em_element.text + u"\u2019s"
+                    em_element.text = (em_element.text if em_element.text is not None else "") + u"\u2019s"
 
         entry_children = entry_element.getchildren()[:-1]
         entry = "".join(map(lambda x: html.tostring(x, method="xml"), entry_children))
@@ -465,7 +465,7 @@ def main():
     sitemap = request("https://www.filfre.net/sitemap/", debug=True)
 
     articles_info = get_articles_info(sitemap)
-    for book in get_books(articles_info, int(config["volumes_min"]), int(config["volumes_max"])):
+    for book in get_books(articles_info, int(config["volumes_min"]), int(config["volumes_max"]), bool(config["additional_books"])):
         transform_articles(book)
         compile_book(book)
 

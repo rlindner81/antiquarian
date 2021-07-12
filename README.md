@@ -7,6 +7,7 @@
 * Install [Python 2.x](https://www.python.org/downloads/)
 
 * Install lxml package `pip install lxml`
+  * https://www.lfd.uci.edu/~gohlke/pythonlibs/
 
 * Download and unpack [KindleGen](https://www.amazon.com/gp/feature.html?docId=1000765211)
 

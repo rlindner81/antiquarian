@@ -1,4 +1,4 @@
-def get_books(articles_info, volumes_min, volumes_max):
+def get_books(articles_info, volumes_min, volumes_max, add_additional_books):
     volumes = (
         {
             "number": "1",
@@ -585,7 +585,139 @@ def get_books(articles_info, volumes_min, volumes_max):
                 "the-shareware-scene-part-4-doom",
                 "the-shareware-scene-part-5-narratives-of-doom"
             )
+        },
+        {
+            "number": "16",
+            "historical_year": "historical year 1994",
+            "name": "the-digital-antiquarian-vol-16",
+            "title": "The Digital Antiquarian, Volume 16: 1994",
+            "cover": "cover-vol-16.jpg",
+            "articles": (
+                "under-a-killing-moon",
+                "beneath-a-steel-sky",
+                "superhero-league-of-hoboken",
+                "death-gate",
+                "bullfrog-after-populous",
+                "x-com",
+                "transport-tycoon",
+                "master-of-magic",
+                "opening-the-gold-box-part-7-back-to-the-roots",
+                "ethics-in-strategy-gaming-part-1-panzer-general",
+                "ethics-in-strategy-gaming-part-2-colonization",
+                "lode-runner",
+                "the-dream-of-flight",
+                "microsoft-space-simulator-or-charles-guys-galaxy-in-a-box",
+                "the-second-coming-of-star-wars",
+                "ultima-viii-or-how-to-destroy-a-gaming-franchise-in-one-easy-step",
+                "wing-commander-iii",
+                "system-shock",
+                "the-ratings-game-part-1-a-likely-and-an-unlikely-suspect",
+                "the-ratings-game-part-2-the-hearing",
+                "the-ratings-game-part-3-dueling-standards",
+                "the-ratings-game-part-4-e3-and-beyond",
+                "bob-stein-and-voyager",
+                "the-best-of-voyager-part-1"
+            )
         }
+    )
+
+    additional_books = (
+        {
+            "name": "the-digital-antiquarian-infocom",
+            "title": "The Digital Antiquarian, Infocom Omnibus",
+            "cover": "cover-infocom.jpg",
+            "has_comments": False,
+            "description":
+                "This is a special omnibus collection of articles from Jimmy Maher's Digital Antiquarian blog, an "
+                "ongoing history of interactive entertainment. Please note that some multimedia elements -- pictures, "
+                "screenshots, movies, audio -- may display imperfectly or not at all on many e-readers.",
+            "articles": (
+                "will-crowthers-adventure-part-1",
+                "will-crowthers-adventure-part-2",
+                "the-completed-adventure-part-1",
+                "the-completed-adventure-part-2",
+                "the-completed-adventure-part-3",
+                "the-roots-of-infocom",
+                "zork-on-the-pdp-10",
+                "the-birth-of-infocom",
+                "zil-and-the-z-machine",
+                "selling-zork",
+                "parser-games",
+                "exploring-zork-part-1",
+                "exploring-zork-part-2",
+                "exploring-zork-part-3",
+                "sentient-software",
+                "infocom-going-it-alone",
+                "zork-ii-part-1",
+                "zork-ii-part-2",
+                "ludic-murder",
+                "britains-occult-uncle",
+                "the-dennis-wheatley-crime-dossiers",
+                "deadline",
+                "playing-deadline-part-1",
+                "playing-deadline-part-2",
+                "playing-deadline-part-3",
+                "playing-deadline-part-4",
+                "the-zork-users-group",
+                "zork-iii-part-1",
+                "zork-iii-part-2",
+                "starcross",
+                "suspended",
+                "the-top-of-its-game",
+                "the-witness",
+                "planetfall",
+                "enchanter",
+                "infidel",
+                "sorcerer",
+                "seastalker",
+                "masters-of-the-game",
+                "cutthroats",
+                "douglas-adams",
+                "the-computerized-hitchhikers",
+                "hitchhiking-the-galaxy-infocom-style",
+                "suspect",
+                "down-from-the-top",
+                "wishbringer",
+                "fooblitzky",
+                "a-mind-forever-voyaging-part-1-steve-meretzkys-interiors",
+                "a-mind-forever-voyaging-part-2-dont-go-back-to-rockvil",
+                "a-mind-forever-voyaging-part-3-through-strange-seas-of-thought-alone",
+                "spellbreaker",
+                "ballyhoo",
+                "out-of-the-frying-pan",
+                "trinity",
+                "t-plus-5-bombs-in-space",
+                "t-plus-4-bombing-nevada",
+                "t-plus-3-edward-teller-and-his-superbomb",
+                "t-plus-2-the-bomb-at-the-crossroads",
+                "t-plus-1-bombing-japan",
+                "t-plus-0-the-fulcrum-of-history",
+                "t-plus-6-all-roads-lead-to-the-kensington-gardens",
+                "trinity-postscript-selling-tragedy",
+                "leather-goddesses-of-phobos-or-sex-comes-to-the-micros-again",
+                "hollywood-daves-hijinx",
+                "bureaucracy",
+                "and-into-the-fire",
+                "stationfall",
+                "the-campy-cosmic-horror-of-h-p-lovecraft",
+                "the-lurking-horror",
+                "mit-and-gue-or-the-annotated-lurking-horror",
+                "nord-and-bert",
+                "plundered-hearts",
+                "beyond-zork",
+                "border-zone",
+                "sherlock-the-riddle-of-the-crown-jewels",
+                "the-bruce-youth",
+                "zork-zero",
+                "shogun",
+                "journey",
+                "arthur-the-quest-for-excalibur",
+                "going-to-california",
+                "new-tricks-for-an-old-z-machine-part-1-digging-the-trenches",
+                "new-tricks-for-an-old-z-machine-part-2-hacking-deeper-or-follies-of-graham-nelsons-youth",
+                "new-tricks-for-an-old-z-machine-part-3-a-renaissance-is-nigh"
+            )
+        },
     )
 
     volumes_min = 0 if volumes_min is None else max(0, volumes_min - 1)
@@ -623,4 +755,13 @@ def get_books(articles_info, volumes_min, volumes_max):
 
         books.append(book)
         books.append(book_comments)
+
+    if not add_additional_books:
+        return books
+
+    for additional_book in additional_books:
+        book = additional_book.copy()
+        book["articles"] = map(lambda x: articles_info[x], book["articles"])
+        books.append(book)
+
     return books
