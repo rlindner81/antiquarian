@@ -96,7 +96,7 @@ def transform_articles(book):
     img_ids = list()
     modified_datetime = datetime(1, 1, 1)
 
-    image_pattern = r"^https://www.filfre.net/wp-content/uploads/(....)/(..)/(.*)$"
+    image_pattern = r"^https?://www.filfre.net/wp-content/uploads/(....)/(..)/(.*)$"
     image_re = re.compile(image_pattern)
 
     year_pattern = r"^\d\d\d\d.*$"
@@ -415,6 +415,8 @@ def compile_book(book):
         errorcode = os.system(cmd)
         if errorcode != 0:
             print "errors found... see", epub_error_file
+            with open(epub_error_file, "r") as fin:
+                print fin.read()
             # during actual epubcheck bugs, the file will get written despite errors!
             if os.path.exists(epub_file):
                 os.remove(epub_file)
@@ -443,6 +445,8 @@ def compile_book(book):
         errorcode = os.system(cmd)
         if errorcode != 0:
             print "errors found... see", mobi_sources_error_file
+            with open(mobi_sources_error_file, "r") as fin:
+                print fin.read()
             sys.exit(-1)
         # move generated file to normal place
         shutil.move(os.path.join(config["bookpath"], book["name"], "OEBPS", mobi_sources_filename), mobi_sources_file)
