@@ -362,12 +362,13 @@ def transform_articles(book):
     dump(template, oebps_dir + "/content.opf")
 
     now = datetime.now()
+    day = now.day
     daysuffix = "th"
-    if now.day % 10 == 1:
+    if (day <= 10 or day >= 20) and day % 10 == 1:
         daysuffix = "st"
-    elif now.day % 10 == 2:
+    elif (day <= 10 or day >= 20) and day % 10 == 2:
         daysuffix = "nd"
-    elif now.day % 10 == 3:
+    elif (day <= 10 or day >= 20) and day % 10 == 3:
         daysuffix = "rd"
 
     template = undump("templates/titlepage.xhtml") \
