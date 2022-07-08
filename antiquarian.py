@@ -7,6 +7,9 @@ import shutil
 import sys
 from ConfigParser import RawConfigParser as ConfigParser
 from datetime import datetime
+from tempfile import gettempdir
+
+from PIL import Image
 
 from lxml import html
 from lxml.html import builder
@@ -80,6 +83,7 @@ def transform_articles(book):
     meta_dir = checkpath(epub_dir + "/META-INF")
     content_dir = checkpath(oebps_dir + "/content")
     assets_dir = checkpath(oebps_dir + "/assets")
+    temp_dir = checkpath(gettempdir())
 
     # copy static templates
     copydump("templates/mimetype", epub_dir + "/mimetype")
@@ -134,15 +138,28 @@ def transform_articles(book):
                 elif filename_lower.endswith(".gif"):
                     mime_type = "image/gif"
                 elif filename_lower.endswith(".bmp"):
-                    mime_type = "image/png"
-                    filename += ".png"
+                    pass
+                elif filename_lower.endswith(".webp"):
+                    pass
                 else:
                     print "unidentified media type for", filename_lower
 
                 # make sure the image is cached
                 image = request_cached_patched(filename, img_src)
+
                 # copy to assets
-                dump(image, assets_dir + "/" + filename)
+                if filename_lower.endswith(".webp") \
+                        or filename_lower.endswith(".bmp"):
+                    tempfile = temp_dir + "/" + filename
+                    dump(image, tempfile)
+                    im = Image.open(tempfile).convert("RGB")
+
+                    filename = filename[:-5] + ".png"
+                    im.save(assets_dir + "/" + filename)
+                    mime_type = "image/png"
+                else:
+                    dump(image, assets_dir + "/" + filename)
+
                 img_element.attrib["src"] = "../assets/" + filename
 
                 img_id = binascii.crc32(filename) & 0xffffffff
