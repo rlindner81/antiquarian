@@ -8,6 +8,9 @@
 
 * Install lxml package `pip install lxml`
   * https://www.lfd.uci.edu/~gohlke/pythonlibs/
+ 
+* Install python image library (fork) package `pip install pillow`
+  * https://pypi.org/project/Pillow/
 
 * Download and unpack [KindleGen](https://www.amazon.com/gp/feature.html?docId=1000765211)
 
